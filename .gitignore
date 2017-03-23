@@ -1,0 +1,15 @@
+*.DS_Store
+target
+.lein-repl-history
+.nrepl-port
+.repl/
+logs/
+doc/
+/resources/gitlog.edn
+.lein-failures
+figwheel_server.log
+karma-test-results.xml
+node_modules
+.idea/
+*~
+.vagrant
