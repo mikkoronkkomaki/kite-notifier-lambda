@@ -3,12 +3,13 @@
            (org.xml.sax SAXParseException))
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [cheshire.core :refer [parse-string]]
             [org.httpkit.client :as http]
             [clojure.zip :refer [xml-zip]]
             [clojure.data.zip.xml :as z]
             [clojure.xml :refer [parse]]
-            [uswitch.lambada.core :refer [deflambdafn]])
+            [uswitch.lambada.core :refer [deflambdafn]]
+            [clj-time.local :as l])
+  (:use [amazonica.aws.s3])
   (:gen-class))
 
 (defn send-notification [token user {:keys [title message]}]
@@ -74,6 +75,9 @@
     (between? 337.5M 22.5M wind-direction) "Luode"
     :else "Suunta ei saatavilla"))
 
+(defn read-config [environment-key path]
+  (or (System/getenv environment-key) (slurp path)))
+
 (defn notification [{:keys [time wind-speed wind-gust wind-direction temperature] :as weather-data} station]
   (let [title (cond (strong-wind? wind-speed) (format "Varoitus! Kova tuuli mitattu asemalla: %s." station)
                     (strong-gusts? wind-speed wind-gust) (format "Varoitus! Kovia puuskia mitattu asemalla: %s." station)
@@ -85,15 +89,29 @@
                  :message message})))
 
 (defn run-notifier []
-  (let [fmi-api-key (or (System/getenv "fmiapikey") (slurp "../.kite-notifier/fmiapikey"))
-        fmi-station (or (System/getenv "fmistation") (slurp "../.kite-notifier/fmistation"))
-        pushovertoken (or (System/getenv "pushovertoken") (slurp "../.kite-notifier/pushovertoken"))
-        pushoveruser (or (System/getenv "pushoveruser") (slurp "../.kite-notifier/pushoveruser"))
+  (let [fmi-api-key (read-config "fmiapikey" "../.kite-notifier/fmiapikey")
+        fmi-station (read-config "fmistation" "../.kite-notifier/fmistation")
+        pushovertoken (read-config "pushovertoken" "../.kite-notifier/pushovertoken")
+        pushoveruser (read-config "pushoveruser" "../.kite-notifier/pushoveruser")
         weather-data (get-weather-data fmi-api-key fmi-station)
         notification (notification weather-data "Vihreäsaari")]
     (when notification
       (println "Notification: " notification)
       (send-notification pushovertoken pushoveruser notification))))
+
+(defn write-settings []
+  (let [settings (str {:last-notification (l/local-now)
+                       :last-warning (l/local-now)})
+        bytes (.getBytes settings)
+        input-stream (ByteArrayInputStream. bytes)]
+    (put-object :bucket-name (read-config "bucket" "../.kite-notifier/bucket")
+                :key "settings.clj"
+                :input-stream input-stream
+                :return-values "ALL_OLD"
+                :metadata {:content-length (count bytes)})))
+
+(defn read-settings []
+  (slurp (:input-stream (get-object "kite-notifier-lambda" "settings.clj"))))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
   (println "Start " in ", " out ", " ctx)
