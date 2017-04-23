@@ -8,7 +8,8 @@
             [clojure.data.zip.xml :as z]
             [clojure.xml :refer [parse]]
             [uswitch.lambada.core :refer [deflambdafn]]
-            [clj-time.local :as l])
+            [clj-time.local :as l]
+            [clj-time.core :as t])
   (:use [amazonica.aws.s3])
   (:gen-class))
 
@@ -85,35 +86,56 @@
         wind-direction (wind-direction-explanation wind-direction)
         message (format "Mitattu: %s, tuulen nopeus %s m/s, puuskat: %s m/s, suunta: %s, lämpötila: %s"
                         time wind-speed wind-gust wind-direction temperature)]
-    (when title {:title title
-                 :message message})))
+    {:title title
+     :message message}))
+
+(defn write-setting-to-s3 [bucket key]
+  (let [data ""
+        bytes (.getBytes data)
+        input-stream (ByteArrayInputStream. bytes)]
+    (put-object :bucket-name bucket
+                :key key
+                :input-stream input-stream
+                :return-values "ALL_NEW"
+                :metadata {:content-length (count bytes)})))
+
+(defn read-setting-from-s3 [bucket key]
+  (:last-modified (:object-metadata (get-object bucket "settings.clj"))))
+
+(defn write-settings [bucket notification-sent? warning-sent?]
+  (when notification-sent? (write-setting-to-s3 bucket "last-notification"))
+  (when warning-sent? (write-setting-to-s3 bucket "last-warning")))
+
+(defn read-settings [bucket]
+  {:last-notification (read-setting-from-s3 bucket "last-notification")
+   :last-warning (read-setting-from-s3 bucket "last-warning")})
+
+(defn minutes-ago [time]
+  (t/in-minutes (t/interval time (t/now))))
 
 (defn run-notifier []
-  (let [fmi-api-key (read-config "fmiapikey" "../.kite-notifier/fmiapikey")
+  (let [bucket (read-config "bucket" "../.kite-notifier/bucket")
+        fmi-api-key (read-config "fmiapikey" "../.kite-notifier/fmiapikey")
         fmi-station (read-config "fmistation" "../.kite-notifier/fmistation")
         pushovertoken (read-config "pushovertoken" "../.kite-notifier/pushovertoken")
         pushoveruser (read-config "pushoveruser" "../.kite-notifier/pushoveruser")
-        weather-data (get-weather-data fmi-api-key fmi-station)
-        notification (notification weather-data "Vihreäsaari")]
-    (when notification
-      (println "Notification: " notification)
-      (send-notification pushovertoken pushoveruser notification))))
-
-(defn write-settings []
-  (let [settings (str {:last-notification (l/local-now)
-                       :last-warning (l/local-now)})
-        bytes (.getBytes settings)
-        input-stream (ByteArrayInputStream. bytes)]
-    (put-object :bucket-name (read-config "bucket" "../.kite-notifier/bucket")
-                :key "settings.clj"
-                :input-stream input-stream
-                :return-values "ALL_OLD"
-                :metadata {:content-length (count bytes)})))
-
-(defn read-settings []
-  (slurp (:input-stream (get-object "kite-notifier-lambda" "settings.clj"))))
+        {:keys [wind-speed wind-gust wind-direction] :as weather-data} (get-weather-data fmi-api-key fmi-station)
+        {:keys [last-notification last-warning]} (read-settings bucket)
+        send-notification? (> 360 (minutes-ago last-notification))
+        send-warning? (> 360 (minutes-ago last-warning))]
+    (when (or (and (strong-wind? wind-speed) send-warning?)
+              (and (strong-gusts? wind-speed wind-gust) send-warning?)
+              (and (conditions-good? wind-speed wind-gust wind-direction)))
+      (let [notification (notification weather-data "Vihreäsaari")]
+        (println "Notification: " notification)
+        (send-notification pushovertoken pushoveruser notification)
+        (write-settings bucket
+                        (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))
+                        (conditions-good? wind-speed wind-gust wind-direction))))
+    weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
   (println "Start " in ", " out ", " ctx)
-  (run-notifier)
-  (println "End"))
+  (let [weather-data (run-notifier)]
+    (println "End")
+    weather-data))
