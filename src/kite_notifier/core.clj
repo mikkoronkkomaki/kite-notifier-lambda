@@ -37,13 +37,13 @@
         twitter-app-consumer-secret (read-config "twitterappconsumersecret" "../.kite-notifier/twitter-app-consumer-secret")
         twitter-user-access-token (read-config "twitteruseraccesstoken" "../.kite-notifier/twitter-user-access-token")
         twitter-user-access-token-secret (read-config "twitteruseraccesstokensecret" "../.kite-notifier/twitter-user-access-token-secret")
-        {:keys [wind-speed wind-gust wind-direction] :as weather-data}  (fmi/get-weather-data fmi-api-key fmi-station)
+        {:keys [wind-speed wind-gust wind-direction] :as weather-data} (fmi/get-weather-data fmi-api-key fmi-station)
         {:keys [last-notification last-warning]} (read-settings bucket)
         send-notification? (< 6 (hours-ago last-notification))
         send-warning? (< 6 (hours-ago last-warning))]
     (when (or (and (strong-wind? wind-speed) send-warning?)
               (and (strong-gusts? wind-speed wind-gust) send-warning?)
-              (and (conditions-good? wind-speed wind-gust wind-direction)))
+              (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?))
       (pushover/send-notification pushovertoken pushoveruser weather-data "Vihreäsaari")
       (twitter/post twitter-app-consumer-key
                     twitter-app-consumer-secret
@@ -52,8 +52,8 @@
                     weather-data
                     "Vihreäsaari")
       (write-settings bucket
-                      (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))
-                      (conditions-good? wind-speed wind-gust wind-direction)))
+                      (conditions-good? wind-speed wind-gust wind-direction)
+                      (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))))
     weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]

@@ -13,4 +13,4 @@
                 :metadata {:content-length (count bytes)})))
 
 (defn read-setting-from-s3 [bucket key]
-  (:last-modified (:object-metadata (get-object bucket "settings.clj"))))
+  (:last-modified (:object-metadata (get-object bucket key))))
