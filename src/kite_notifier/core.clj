@@ -41,9 +41,13 @@
         {:keys [last-notification last-warning]} (read-settings bucket)
         send-notification? (< 6 (hours-ago last-notification))
         send-warning? (< 6 (hours-ago last-warning))]
-    (when (or (and (strong-wind? wind-speed) send-warning?)
-              (and (strong-gusts? wind-speed wind-gust) send-warning?)
-              (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?))
+
+     (println "---> SEND notifi" (conditions-good? wind-speed wind-gust wind-direction))
+     (println "---> SEND notifi" (kite-notifier.weather-data/wind-direction-explanation  wind-direction))
+
+    (when (or (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
+              (and (strong-wind? wind-speed) send-warning?)
+              (and (strong-gusts? wind-speed wind-gust) send-warning?))
       (pushover/send-notification pushovertoken pushoveruser weather-data "Vihreäsaari")
       (twitter/post twitter-app-consumer-key
                     twitter-app-consumer-secret

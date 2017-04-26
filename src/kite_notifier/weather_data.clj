@@ -10,7 +10,8 @@
 (defn south-west? [wind-direction] (between? 202.5M 247.5M wind-direction))
 (defn west? [wind-direction] (between? 247.5M 292.5M wind-direction))
 (defn north-west? [wind-direction] (between? 292.5M 337.5M wind-direction))
-(defn north? [wind-direction] (between? 337.5M 22.5M wind-direction))
+(defn north? [wind-direction] (or (between? 337.5M 360 wind-direction)
+                                  (between? 0 22.5M wind-direction)))
 
 (defn conditions-good? [wind-speed wind-gust wind-direction]
   (and (between? 7 15 wind-speed)
