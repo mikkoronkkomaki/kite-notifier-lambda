@@ -3,11 +3,24 @@
 (defn between? [min max val]
   (and (<= min val) (>= max val)))
 
+(defn north-east? [wind-direction] (between? 22.5M 67.5M wind-direction))
+(defn east? [wind-direction] (between? 67.5M 112.5M wind-direction))
+(defn south-east? [wind-direction] (between? 112.5M 157.5M wind-direction))
+(defn south? [wind-direction] (between? 157.5M 202.5M wind-direction))
+(defn south-west? [wind-direction] (between? 202.5M 247.5M wind-direction))
+(defn west? [wind-direction] (between? 247.5M 292.5M wind-direction))
+(defn north-west? [wind-direction] (between? 292.5M 337.5M wind-direction))
+(defn north? [wind-direction] (between? 337.5M 22.5M wind-direction))
+
 (defn conditions-good? [wind-speed wind-gust wind-direction]
   (and (between? 7 15 wind-speed)
        (between? 7 16 wind-gust)
        (> 4 (- wind-gust wind-speed))
-       (between? 180 360 wind-direction)))
+       (or (south? wind-direction)
+           (south-west? wind-direction)
+           (west? wind-direction)
+           (north-west? wind-direction)
+           (north? wind-direction))))
 
 (defn strong-wind? [wind-speed]
   (< 15 wind-speed))
@@ -17,12 +30,12 @@
 
 (defn wind-direction-explanation [wind-direction]
   (cond
-    (between? 22.5M 67.5M wind-direction) "Koilinen"
-    (between? 67.5M 112.5M wind-direction) "Itä"
-    (between? 112.5M 157.5M wind-direction) "Kaakko"
-    (between? 157.5M 202.5M wind-direction) "Etelä"
-    (between? 202.5M 247.5M wind-direction) "Lounas"
-    (between? 247.5M 292.5M wind-direction) "Länsi"
-    (between? 292.5M 337.5M wind-direction) "Luode"
-    (between? 337.5M 22.5M wind-direction) "Luode"
+    (north-east? wind-direction) "Koilinen"
+    (east? wind-direction) "Itä"
+    (south-east? wind-direction) "Kaakko"
+    (south? wind-direction) "Etelä"
+    (south-west? wind-direction) "Lounas"
+    (west? wind-direction) "Länsi"
+    (north-west? wind-direction) "Luode"
+    (north? wind-direction) "Pohjoinen"
     :else "Suunta ei saatavilla"))
