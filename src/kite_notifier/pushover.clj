@@ -5,7 +5,7 @@
 (defn notification [{:keys [time wind-speed wind-gust wind-direction temperature] :as weather-data} station]
   (let [title (cond (strong-wind? wind-speed) (format "Varoitus! Kova tuuli mitattu asemalla: %s." station)
                     (strong-gusts? wind-speed wind-gust) (format "Varoitus! Kovia puuskia mitattu asemalla: %s." station)
-                    (conditions-good? wind-speed wind-gust wind-direction) (format "Loistavat olosuhteet mitattu asemalla: %s." station))
+                    (conditions-good? wind-speed wind-gust wind-direction) (format "Keli päällä asemalla: %s." station))
         wind-direction (wind-direction-explanation wind-direction)
         message (format "Mitattu: %s, tuulen nopeus %s m/s, puuskat: %s m/s, suunta: %s, lämpötila: %s °C"
                         time wind-speed wind-gust wind-direction temperature)]

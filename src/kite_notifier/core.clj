@@ -17,8 +17,10 @@
   (or (System/getenv environment-key) (slurp path)))
 
 (defn write-settings [bucket notification-sent? warning-sent?]
-  (when notification-sent? (s3/write-setting-to-s3 bucket "last-notification"))
-  (when warning-sent? (s3/write-setting-to-s3 bucket "last-warning")))
+  (when notification-sent?
+    (s3/write-setting-to-s3 bucket "last-notification"))
+  (when warning-sent?
+    (s3/write-setting-to-s3 bucket "last-warning")))
 
 (defn read-settings [bucket]
   {:last-notification (s3/read-setting-from-s3 bucket "last-notification")
@@ -41,23 +43,21 @@
         {:keys [last-notification last-warning]} (read-settings bucket)
         send-notification? (< 6 (hours-ago last-notification))
         send-warning? (< 6 (hours-ago last-warning))]
-
-     (println "---> SEND notifi" (conditions-good? wind-speed wind-gust wind-direction))
-     (println "---> SEND notifi" (kite-notifier.weather-data/wind-direction-explanation  wind-direction))
-
-    (when (or (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
-              (and (strong-wind? wind-speed) send-warning?)
-              (and (strong-gusts? wind-speed wind-gust) send-warning?))
-      (pushover/send-notification pushovertoken pushoveruser weather-data "Vihreäsaari")
-      (twitter/post twitter-app-consumer-key
-                    twitter-app-consumer-secret
-                    twitter-user-access-token
-                    twitter-user-access-token-secret
-                    weather-data
-                    "Vihreäsaari")
-      (write-settings bucket
-                      (conditions-good? wind-speed wind-gust wind-direction)
-                      (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))))
+    (if (or (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
+            (and (strong-wind? wind-speed) send-warning?)
+            (and (strong-gusts? wind-speed wind-gust) send-warning?))
+      (do (println "Sending notification" send-notification? "/warning " send-warning?)
+          (pushover/send-notification pushovertoken pushoveruser weather-data "Vihreäsaari")
+          (twitter/post twitter-app-consumer-key
+                        twitter-app-consumer-secret
+                        twitter-user-access-token
+                        twitter-user-access-token-secret
+                        weather-data
+                        "Vihreäsaari")
+          (write-settings bucket
+                          (conditions-good? wind-speed wind-gust wind-direction)
+                          (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))))
+      (println "No notification/warning sent"))
     weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
