@@ -44,8 +44,8 @@
         send-notification? (< 6 (hours-ago last-notification))
         send-warning? (< 6 (hours-ago last-warning))]
 
-    (println (str "Last notification sent " (< 6 (hours-ago last-notification) " hours ago")))
-    (println (str "Last warning sent " (< 6 (hours-ago last-warning) " hours ago")))
+    (println (str "Last notification sent " last-notification))
+    (println (str "Last warning sent " last-warning))
 
     (if (or (and send-notification? (conditions-good? wind-speed wind-gust wind-direction))
             (and send-warning? (strong-wind? wind-speed))
