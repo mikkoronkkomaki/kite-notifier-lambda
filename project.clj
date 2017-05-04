@@ -1,8 +1,10 @@
 (defproject kite-notifier "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "Kite notifications for Oulu Finland with an AWS Lambda"
+  :url "https://github.com/mikkoronkkomaki/kite-notifier-lambda"
+  :license {:name "MIT License"
+            :url "https://opensource.org/licenses/MIT"}
+  :source-paths ["src"]
+  :test-paths ["test"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [http-kit "2.2.0"]
                  [uswitch/lambada "0.1.2"]
@@ -13,5 +15,6 @@
                  [clj-time "0.13.0"]
                  [twitter-api "1.8.0"]
                  [com.taoensso/timbre "4.10.0"]]
+
   :aot :all
   :main kite-notifier.core)
