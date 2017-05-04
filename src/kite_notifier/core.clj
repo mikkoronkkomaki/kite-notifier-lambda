@@ -12,7 +12,8 @@
             [kite-notifier.fmi :as fmi]
             [kite-notifier.s3 :as s3]
             [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts?]]
-            [clj-time.format :as f])
+            [clj-time.format :as f]
+            [taoensso.timbre :as log])
   (:gen-class))
 
 (defn read-config [environment-key path]
@@ -50,13 +51,13 @@
         send-notification? (and (not (quiet-time?)) (< 6 (hours-ago last-notification)))
         send-warning? (and (not (quiet-time?)) (< 6 (hours-ago last-warning)))]
 
-    (println (str "Last notification sent " last-notification))
-    (println (str "Last warning sent " last-warning))
+    (log/info (str "Last notification sent " last-notification))
+    (log/info (str "Last warning sent " last-warning))
 
     (if (or (and send-notification? (conditions-good? wind-speed wind-gust wind-direction))
             (and send-warning? (strong-wind? wind-speed))
             (and send-warning? (strong-gusts? wind-speed wind-gust)))
-      (do (println "Sending notification:" (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
+      (do (log/info "Sending notification:" (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
                    " & warning:" (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust)))
           (pushover/send-notification pushovertoken pushoveruser weather-data "Vihreäsaari")
           (twitter/post twitter-app-consumer-key
@@ -68,13 +69,13 @@
           (write-settings bucket
                           (conditions-good? wind-speed wind-gust wind-direction)
                           (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))))
-      (println "No notification/warning sent"))
+      (log/info "No notification/warning sent"))
     weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
-                                       (println "Start " in ", " out ", " ctx)
+                                       (log/info "Start " in ", " out ", " ctx)
                                        (let [weather-data (run-notifier)]
-                                         (println "End")
+                                         (log/info "End")
                                          weather-data))
 
 

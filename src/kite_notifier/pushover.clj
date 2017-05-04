@@ -1,7 +1,8 @@
 (ns kite-notifier.pushover
   (:require [org.httpkit.client :as http]
             [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts? wind-direction-explanation]]
-            [clj-time.format :as f]))
+            [clj-time.format :as f]
+            [taoensso.timbre :as log]))
 
 (defn notification [{:keys [time wind-speed wind-gust wind-direction temperature] :as weather-data} station]
   (let [title (cond (strong-wind? wind-speed) (format "Varoitus! Kova tuuli mitattu asemalla: %s." station)
@@ -22,4 +23,4 @@
                                :title title
                                :url "https://pushover.net/api"}}
         {:keys [status error body]} @(http/post "https://api.pushover.net/1/messages.json" options)]
-    (println "Response: " status ", " error ", " body)))
+    (log/info "Response: " status ", " error ", " body)))
