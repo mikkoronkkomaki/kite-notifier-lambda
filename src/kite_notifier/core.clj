@@ -1,6 +1,7 @@
 (ns kite-notifier.core
   (:import (java.io ByteArrayInputStream)
-           (org.xml.sax SAXParseException))
+           (org.xml.sax SAXParseException)
+           (org.joda.time DateTimeZone))
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [uswitch.lambada.core :refer [deflambdafn]]
@@ -30,6 +31,10 @@
 (defn hours-ago [time]
   (t/in-hours (t/interval time (t/now))))
 
+(defn quiet-time? []
+  (let [current-hour (t/hour (t/to-time-zone (t/now) (DateTimeZone/forID "Europe/Helsinki")))]
+    (or (> 7 current-hour) (< 22 current-hour))))
+
 (defn run-notifier []
   (let [bucket (read-config "bucket" "../.kite-notifier/bucket")
         fmi-api-key (read-config "fmiapikey" "../.kite-notifier/fmiapikey")
@@ -42,8 +47,8 @@
         twitter-user-access-token-secret (read-config "twitteruseraccesstokensecret" "../.kite-notifier/twitter-user-access-token-secret")
         {:keys [wind-speed wind-gust wind-direction] :as weather-data} (fmi/get-weather-data fmi-api-key fmi-station)
         {:keys [last-notification last-warning]} (read-settings bucket)
-        send-notification? (< 6 (hours-ago last-notification))
-        send-warning? (< 6 (hours-ago last-warning))]
+        send-notification? (and (not (quiet-time?)) (< 6 (hours-ago last-notification)))
+        send-warning? (and (not (quiet-time?)) (< 6 (hours-ago last-warning)))]
 
     (println (str "Last notification sent " last-notification))
     (println (str "Last warning sent " last-warning))
@@ -67,10 +72,10 @@
     weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
-  (println "Start " in ", " out ", " ctx)
-  (let [weather-data (run-notifier)]
-    (println "End")
-    weather-data))
+                                       (println "Start " in ", " out ", " ctx)
+                                       (let [weather-data (run-notifier)]
+                                         (println "End")
+                                         weather-data))
 
 
 
