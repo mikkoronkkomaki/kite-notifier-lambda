@@ -10,7 +10,8 @@
             [kite-notifier.pushover :as pushover]
             [kite-notifier.fmi :as fmi]
             [kite-notifier.s3 :as s3]
-            [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts?]])
+            [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts?]]
+            [clj-time.format :as f])
   (:gen-class))
 
 (defn read-config [environment-key path]
