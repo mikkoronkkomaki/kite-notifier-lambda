@@ -8,15 +8,15 @@
   (:import [twitter.callbacks.protocols SyncSingleCallback]))
 
 (defn credentials [app-consumer-key
-                        app-consumer-secret
-                        user-access-token
-                        user-access-token-secret]
+                   app-consumer-secret
+                   user-access-token
+                   user-access-token-secret]
   (make-oauth-creds app-consumer-key
                     app-consumer-secret
                     user-access-token
                     user-access-token-secret))
 
-(defn status [{:keys [time wind-speed wind-gust wind-direction temperature] :as weather-data} station]
+(defn status [{:keys [time wind-speed wind-gust wind-direction temperature station] :as weather-data}]
   (let [title (cond (strong-wind? wind-speed) (format "Varoitus: Kova tuuli (%s)!" station)
                     (strong-gusts? wind-speed wind-gust) (format "Varoitus: Kovat puuskat(%s)!" station)
                     (conditions-good? wind-speed wind-gust wind-direction) (format "Keli päällä (%s)!" station))
@@ -29,9 +29,8 @@
             app-consumer-secret
             user-access-token
             user-access-token-secret
-            weather-data
-            station]
-  (let [status (status weather-data station)
+            weather-data]
+  (let [status (status weather-data)
         credentials (credentials app-consumer-key
                                  app-consumer-secret
                                  user-access-token

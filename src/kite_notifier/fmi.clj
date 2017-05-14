@@ -34,6 +34,7 @@
                       :wind-speed (Double/parseDouble (:value (latest-observation "windspeedms" observations)))
                       :wind-gust (Double/parseDouble (:value (latest-observation "windGust" observations)))
                       :wind-direction (Double/parseDouble (:value (latest-observation "winddirection" observations)))
-                      :temperature (Double/parseDouble (:value (latest-observation "temperature" observations)))}]
+                      :temperature (Double/parseDouble (:value (latest-observation "temperature" observations)))
+                      :station "Vihreäsaari"}]
     (log/info "Current weather data: " weather-data)
     weather-data))

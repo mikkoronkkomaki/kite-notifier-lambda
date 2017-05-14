@@ -5,7 +5,7 @@
             [taoensso.timbre :as log]
             [kite-notifier.dates :as dates]))
 
-(defn notification [{:keys [time wind-speed wind-gust wind-direction temperature] :as weather-data} station]
+(defn notification [{:keys [time wind-speed wind-gust wind-direction temperature station] :as weather-data}]
   (let [title (cond (strong-wind? wind-speed) (format "Varoitus! Kova tuuli mitattu asemalla: %s." station)
                     (strong-gusts? wind-speed wind-gust) (format "Varoitus! Kovia puuskia mitattu asemalla: %s." station)
                     (conditions-good? wind-speed wind-gust wind-direction) (format "Keli päällä asemalla: %s." station))
@@ -16,8 +16,8 @@
     {:title title
      :message message}))
 
-(defn send-notification [token user weather-data station]
-  (let [{message :message title :title} (notification weather-data station)
+(defn send-notification [token user weather-data]
+  (let [{message :message title :title} (notification weather-data)
         options {:form-params {:token token
                                :user user
                                :message message

@@ -12,6 +12,7 @@
             [kite-notifier.fmi :as fmi]
             [kite-notifier.s3 :as s3]
             [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts?]]
+            [kite-notifier.html :as html]
             [clj-time.format :as f]
             [taoensso.timbre :as log])
   (:gen-class))
@@ -38,6 +39,7 @@
 
 (defn run-notifier []
   (let [bucket (read-config "bucket" "../.kite-notifier/bucket")
+        html-bucket (read-config "htmlbucket" "../.kite-notifier/htmlbucket")
         fmi-api-key (read-config "fmiapikey" "../.kite-notifier/fmiapikey")
         fmi-station (read-config "fmistation" "../.kite-notifier/fmistation")
         pushovertoken (read-config "pushovertoken" "../.kite-notifier/pushovertoken")
@@ -59,13 +61,13 @@
             (and send-warning? (strong-gusts? wind-speed wind-gust)))
       (do (log/info "Sending notification:" (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
                    " & warning:" (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust)))
-          (pushover/send-notification pushovertoken pushoveruser weather-data "Vihreäsaari")
+          (pushover/send-notification pushovertoken pushoveruser weather-data)
           (twitter/post twitter-app-consumer-key
                         twitter-app-consumer-secret
                         twitter-user-access-token
                         twitter-user-access-token-secret
-                        weather-data
-                        "Vihreäsaari")
+                        weather-data)
+          (html/publish html-bucket weather-data )
           (write-settings bucket
                           (conditions-good? wind-speed wind-gust wind-direction)
                           (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))))

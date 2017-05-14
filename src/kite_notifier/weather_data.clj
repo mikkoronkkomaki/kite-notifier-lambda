@@ -30,13 +30,15 @@
   (<= 4 (- wind-gust wind-speed)))
 
 (defn wind-direction-explanation [wind-direction]
-  (cond
-    (north-east? wind-direction) "Koilinen"
-    (east? wind-direction) "Itä"
-    (south-east? wind-direction) "Kaakko"
-    (south? wind-direction) "Etelä"
-    (south-west? wind-direction) "Lounas"
-    (west? wind-direction) "Länsi"
-    (north-west? wind-direction) "Luode"
-    (north? wind-direction) "Pohjoinen"
-    :else "Suunta ei saatavilla"))
+  (if wind-direction
+    (cond
+      (north-east? wind-direction) "Koilinen"
+      (east? wind-direction) "Itä"
+      (south-east? wind-direction) "Kaakko"
+      (south? wind-direction) "Etelä"
+      (south-west? wind-direction) "Lounas"
+      (west? wind-direction) "Länsi"
+      (north-west? wind-direction) "Luode"
+      (north? wind-direction) "Pohjoinen"
+      :else "Suunta ei saatavilla")
+    "Suunta ei saatavilla"))
