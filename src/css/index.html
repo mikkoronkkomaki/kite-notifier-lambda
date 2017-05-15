@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <style>#wrapper {
+    <style>
+    #wrapper {
         width: 800px;
     }
 
@@ -16,6 +17,7 @@
         display: block;
         align: center;
     }
+
     </style>
 </head>
 <body>
@@ -23,18 +25,15 @@
 <div id="wrapper">
     <div class="container">
         <div class="page-header"><h1>Oulu kitetiedot</h1></div>
-        <div class="panel panel-primary">
+        <div class="panel panel-danger">
             <div class="panel-heading">
-                <h3 class="panel-title">Vihreäsaari</h3>
+                <h3 class="panel-title">Vihreäsaari &#8598; 7.5 / 8.7 m/s</h3>
             </div>
 
             <div class="panel-body">
                 <div id="latest-observation">
-                    <ul>
-                        <li>Tuuli: Etelä 7.5/8.7 m/s</li>
-                        <li>Lämpötila: 5.2 °C</li>
-                        <li>Mitattu: 10:10 14.5.2017</li>
-                    </ul>
+                    <p>Lämpötila: 5.2 °C</p>
+                    <p>Mitattu: 10:10 14.5.2017</p>
                 </div>
             </div>
         </div>
@@ -51,7 +50,9 @@
                         js.src = p + '://platform.twitter.com/widgets.js';
                         fjs.parentNode.insertBefore(js, fjs);
                     }
-                }(document, 'script', 'twitter-wjs');</script>
+                }(document, 'script', 'twitter-wjs');
+
+                </script>
             </p>
             <p>
                 <!-- Place this tag where you want the button to render. -->
