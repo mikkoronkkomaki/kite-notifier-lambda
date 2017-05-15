@@ -15,6 +15,12 @@
     (wd/north-west? wind-direction) "&#8600;"
     :else "?"))
 
+(defn panel-class [wind-speed wind-gust wind-direction]
+  (cond
+    (wd/conditions-good? wind-speed wind-gust wind-direction) :div.panel.panel-success
+    (or (wd/strong-gusts? wind-speed wind-gust) (wd/strong-wind? wind-speed)) :div.panel.panel-danger
+    :else :div.panel.panel-primary))
+
 (defn header []
   [:div#header
    [:h1 "Oulu kitetiedot"]])
@@ -33,8 +39,10 @@
      {:href "https://github.com/mikkoronkkomaki/kite-notifier-lambda/", :aria-label "Follow Kite Notifier Lambda on GitHub"}
      "Follow Kite Notifier Lambda"]]])
 
+
+
 (defn observations-from-station [{:keys [station wind-speed wind-gust wind-direction temperature time]}]
-  [:div.panel.panel-primary
+  [(panel-class wind-speed wind-gust wind-direction)
    [:div.panel-heading
     [:h3.panel-title (format "%s: %s / %s m/s %s "
                              station
