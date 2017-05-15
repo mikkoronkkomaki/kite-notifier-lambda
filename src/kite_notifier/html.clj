@@ -23,7 +23,7 @@
 
 (defn header []
   [:div#header
-   [:h1 "Oulu kitetiedot"]])
+   [:h1 "Oulu Kitetiedot"]])
 
 (defn footer []
   [:div#footer
@@ -87,4 +87,8 @@
     (str html-header (html document))))
 
 (defn publish [html-bucket weather-data]
-  (s3/write-file-to-s3 html-bucket "index.html" (weather-document weather-data) "text/html"))
+  (s3/write-file-to-s3 html-bucket
+                       "index.html"
+                       (weather-document weather-data)
+                       "text/html"
+                       true))

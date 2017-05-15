@@ -4,8 +4,8 @@
 
 (defn write-file-to-s3
   ([bucket key data]
-   (write-file-to-s3 bucket key data "application/text"))
-  ([bucket key data content-type]
+   (write-file-to-s3 bucket key data "application/text" false))
+  ([bucket key data content-type public?]
    (let [bytes (.getBytes data)
          input-stream (ByteArrayInputStream. bytes)]
      (put-object :bucket-name bucket
@@ -13,7 +13,8 @@
                  :input-stream input-stream
                  :return-values "ALL_NEW"
                  :metadata {:content-length (count bytes)
-                            :content-type content-type}))))
+                            :content-type content-type}
+                 :access-control-list (when public? {:grant-permission ["AllUsers" "Read"]})))))
 
 (defn write-setting-to-s3 [bucket key]
   (write-file-to-s3 bucket key ""))
