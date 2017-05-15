@@ -25,7 +25,7 @@
 
 (defn observations-from-station [{:keys [station wind-speed wind-gust wind-direction temperature time]}]
   (let [wind-direction (wind-direction-explanation wind-direction)]
-    [:div.panel.panel-default
+    [:div.panel.panel-primary
      [:div.panel-heading
       [:h3.panel-title
        "Vihreäsaari"]]
@@ -38,18 +38,30 @@
 
 (defn weather-document [weather-data]
   (let [html-header "<!DOCTYPE html>
-                      <html lang=\"en\">
-                      <head>
-                        <meta charset=\"UTF-8\">
-                        <title>Oulu kitetiedot</title>
-                        <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"
-                        integrity=\"sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u\" crossorigin=\"anonymous\">
-                        <script async defer src=\"https://buttons.github.io/buttons.js\"></script>
-                      </head>"
-        document [:div#container
-                  (header)
-                  (observations-from-station weather-data)
-                  (footer)]]
+                    <html lang=\"en\">
+
+                    <head>
+                      <meta charset=\"UTF-8\">
+                      <title>Oulu kitetiedot</title>
+                      <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"
+                            integrity=\"sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u\" crossorigin=\"anonymous\">
+                      <script async defer src=\"https://buttons.github.io/buttons.js\"></script>
+                      <style>#wrapper {
+                                width: 800px;
+                              }
+
+                              #wrapper .container {
+                                  max-width: 100%;
+                                  display: block;
+                                align: center;
+                              }
+                      </style>
+                    </head>"
+        document [:div#wrapper
+                  [:div.container
+                   (header)
+                   (observations-from-station weather-data)
+                   (footer)]]]
     (str html-header (html document))))
 
 (defn publish [html-bucket weather-data]
