@@ -35,7 +35,7 @@
 
 (defn quiet-time? []
   (let [current-hour (t/hour (t/to-time-zone (t/now) (DateTimeZone/forID "Europe/Helsinki")))]
-    (or (> 7 current-hour) (< 22 current-hour))))
+    (and (> 7 current-hour) (< 22 current-hour))))
 
 (defn run-notifier []
   (let [bucket (read-config "bucket" "../.kite-notifier/bucket")
