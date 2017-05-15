@@ -60,25 +60,25 @@
             (and send-warning? (strong-wind? wind-speed))
             (and send-warning? (strong-gusts? wind-speed wind-gust)))
       (do (log/info "Sending notification:" (and (conditions-good? wind-speed wind-gust wind-direction) send-notification?)
-                   " & warning:" (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust)))
+                    " & warning:" (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust)))
           (pushover/send-notification pushovertoken pushoveruser weather-data)
           (twitter/post twitter-app-consumer-key
                         twitter-app-consumer-secret
                         twitter-user-access-token
                         twitter-user-access-token-secret
                         weather-data)
-          (html/publish html-bucket weather-data )
           (write-settings bucket
                           (conditions-good? wind-speed wind-gust wind-direction)
                           (or (strong-wind? wind-speed) (strong-gusts? wind-speed wind-gust))))
       (log/info "No notification/warning sent"))
+    (html/publish html-bucket weather-data)
     weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
-                                       (log/info "Start " in ", " out ", " ctx)
-                                       (let [weather-data (run-notifier)]
-                                         (log/info "End")
-                                         weather-data))
+  (log/info "Start " in ", " out ", " ctx)
+  (let [weather-data (run-notifier)]
+    (log/info "End")
+    weather-data))
 
 
 
