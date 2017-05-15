@@ -1,7 +1,19 @@
 (ns kite-notifier.html
   (:require [hiccup.core :refer [html]]
-            [kite-notifier.weather-data :refer [wind-direction-explanation]]
+            [kite-notifier.weather-data :as wd]
             [kite-notifier.s3 :as s3]))
+
+(defn wind-direction-icon [wind-direction]
+  (cond
+    (wd/north? wind-direction) "&#8593;"
+    (wd/north-east? wind-direction) "&#8601;"
+    (wd/east? wind-direction) "&#8592;"
+    (wd/south-east? wind-direction) "&#8598;"
+    (wd/south? wind-direction) "&#8593;"
+    (wd/south-west? wind-direction) "&#8599;"
+    (wd/west? wind-direction) "&#8594;"
+    (wd/north-west? wind-direction) "&#8600;"
+    :else "?"))
 
 (defn header []
   [:div#header
@@ -11,9 +23,7 @@
   [:div#footer
    [:p
     [:a.twitter-follow-button
-     {:href "https://twitter.com/OuluKiteTiedot", :data-show-count "false"}
-     "Follow
-                 @OuluKiteTiedot"]
+     {:href "https://twitter.com/OuluKiteTiedot", :data-show-count "false"} "Follow @OuluKiteTiedot"]
     [:script
      "!function (d, s, id) {
                      var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
@@ -24,37 +34,37 @@
      "Follow Kite Notifier Lambda"]]])
 
 (defn observations-from-station [{:keys [station wind-speed wind-gust wind-direction temperature time]}]
-  (let [wind-direction (wind-direction-explanation wind-direction)]
-    [:div.panel.panel-primary
-     [:div.panel-heading
-      [:h3.panel-title
-       "Vihreäsaari"]]
-     [:div.panel-body
-      [:div#latest-observation
-       [:ul
-        [:li (format "Tuuli: %s %s/%s m/s" wind-direction wind-speed wind-gust)]
-        [:li (format "Lämpötila: %s °C" temperature)]
-        [:li (format "Mitattu: %s" time)]]]]]))
+  [:div.panel.panel-primary
+   [:div.panel-heading
+    [:h3.panel-title (format "%s: %s / %s m/s %s "
+                             station
+                             wind-speed
+                             wind-gust
+                             (wind-direction-icon wind-direction))]]
+   [:div.panel-body
+    [:div#latest-observation
+     [:p (format "Lämpötila: %s °C" temperature)]
+     [:p (format "Mitattu: %s" time)]]]])
 
 (defn weather-document [weather-data]
   (let [html-header "<!DOCTYPE html>
                     <html lang=\"en\">
-
                     <head>
                       <meta charset=\"UTF-8\">
                       <title>Oulu kitetiedot</title>
                       <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\"
                             integrity=\"sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u\" crossorigin=\"anonymous\">
                       <script async defer src=\"https://buttons.github.io/buttons.js\"></script>
-                      <style>#wrapper {
-                                width: 800px;
-                              }
+                      <style>
+                        #wrapper {
+                          width: 800px;
+                        }
 
-                              #wrapper .container {
-                                  max-width: 100%;
-                                  display: block;
-                                align: center;
-                              }
+                        #wrapper .container {
+                            max-width: 100%;
+                            display: block;
+                          align: center;
+                        }
                       </style>
                     </head>"
         document [:div#wrapper
