@@ -14,7 +14,8 @@
                  [com.amazonaws/aws-java-sdk-s3 "1.10.49"]
                  [clj-time "0.13.0"]
                  [twitter-api "1.8.0"]
-                 [com.taoensso/timbre "4.10.0"]]
+                 [com.taoensso/timbre "4.10.0"]
+                 [hiccup "1.0.5"]]
 
   :aot :all
   :main kite-notifier.core)
