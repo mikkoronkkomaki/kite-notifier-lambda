@@ -48,7 +48,11 @@
                              station
                              wind-speed
                              wind-gust
-                             (wind-direction-icon wind-direction))]]
+                             (wind-direction-icon wind-direction))
+     (when (wd/conditions-good? wind-speed wind-gust wind-direction)
+       [:span.glyphicon.glyphicon-thumbs-up ])
+     (when (or (wd/strong-gusts? wind-speed wind-gust) (wd/strong-wind? wind-speed))
+       [:span.glyphicon.glyphicon-ban-circle])]]
    [:div.panel-body
     [:div#latest-observation
      [:p (format "Lämpötila: %s °C" temperature)]
