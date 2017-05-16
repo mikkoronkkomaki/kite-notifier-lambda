@@ -11,7 +11,7 @@ before_script:
 script: lein do clean, deps, compile, uberjar
 before_deploy:
   - mkdir s3-deploy
-  - ln target/kite-notifier-0.1.0-SNAPSHOT-standalone.jar "s3-deploy/kite-notifier-travis-${TRAVIS_BRANCH}.jar"	 
+  - ln target/kite-notifier-0.1.0-SNAPSHOT-standalone.jar "s3-deploy/kite-notifier.jar"	 
 deploy:
   provider: s3
   region: eu-central-1
