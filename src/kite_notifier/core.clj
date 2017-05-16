@@ -75,9 +75,9 @@
     weather-data))
 
 (deflambdafn kite-notifier.core.lambda [in out ctx]
-  (log/info "> Start " in ", " out ", " ctx)
+  (log/info "Start " in ", " out ", " ctx)
   (let [weather-data (run-notifier)]
-    (log/info "> End")
+    (log/info "End")
     weather-data))
 
 
