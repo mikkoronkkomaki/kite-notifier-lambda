@@ -10,7 +10,6 @@ before_script:
   - sudo dpkg-reconfigure --frontend noninteractive tzdata
 script: lein do clean, deps, compile, uberjar
 before_deploy:
-before_deploy:
   - mkdir s3-deploy
   - ln target/kite-notifier-0.1.0-SNAPSHOT-standalone.jar "s3-deploy/kite-notifier-travis-${TRAVIS_BRANCH}.jar"	 
 deploy:
