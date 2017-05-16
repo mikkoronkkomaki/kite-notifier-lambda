@@ -15,4 +15,6 @@ deploy:
   skip_cleanup: true
   bucket: "kite-notifier-lambda-build"
   acl: public_read
-  local_dir: s3-deploy
+  local_dir: build
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
