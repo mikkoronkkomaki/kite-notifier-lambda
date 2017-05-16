@@ -14,7 +14,5 @@ deploy:
   region: eu-central-1
   skip_cleanup: true
   bucket: "kite-notifier-lambda-build"
-  access_key_id: <%= ENV['S3_ACCESS_KEY_ID'] %>
-  secret_access_key: <%= ENV['S3_SECRET_KEY'] %>
   acl: public_read
   local_dir: s3-deploy
