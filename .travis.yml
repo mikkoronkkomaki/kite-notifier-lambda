@@ -9,3 +9,10 @@ before_script:
   - echo 'Europe/Helsinki' | sudo tee /etc/timezone
   - sudo dpkg-reconfigure --frontend noninteractive tzdata
 script: lein do clean, deps, compile, uberjar
+deploy:
+  provider: s3
+  region: eu-central-1
+  skip_cleanup: true
+  bucket: "kite-notifier-lambda-build"
+  acl: public_read
+  local_dir: s3-deploy
