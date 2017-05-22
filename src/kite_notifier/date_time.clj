@@ -18,4 +18,4 @@
 
 (defn quiet-time? []
   (let [current-hour (t/hour (t/to-time-zone (t/now) (DateTimeZone/forID "Europe/Helsinki")))]
-    (and (> 7 current-hour) (< 22 current-hour))))
+    (or (< current-hour 7) (> current-hour 22))))

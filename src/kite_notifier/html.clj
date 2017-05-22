@@ -75,7 +75,7 @@
    [:div.panel-body
     [:div#latest-observation
      [:p (format "Lämpötila: %s °C" temperature)]
-     [:p (format "Mitattu: %s" (dates/to-finnish-time time))]]]])
+     [:p (format "Mitattu: %s" (dt/to-finnish-time time))]]]])
 
 (defn weather-document-hiccup [weather-data]
   [:html
