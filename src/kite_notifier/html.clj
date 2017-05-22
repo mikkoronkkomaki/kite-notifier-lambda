@@ -1,7 +1,8 @@
 (ns kite-notifier.html
   (:require [hiccup.core :refer [html]]
             [kite-notifier.weather-data :as wd]
-            [kite-notifier.s3 :as s3]))
+            [kite-notifier.s3 :as s3]
+            [kite-notifier.dates :as dates]))
 
 (defn wind-direction-icon [wind-direction]
   (cond
@@ -56,7 +57,7 @@
    [:div.panel-body
     [:div#latest-observation
      [:p (format "Lämpötila: %s °C" temperature)]
-     [:p (format "Mitattu: %s" time)]]]])
+     [:p (format "Mitattu: %s" (dates/to-finnish-time time))]]]])
 
 (defn weather-document [weather-data]
   (let [html-header "<!DOCTYPE html>
