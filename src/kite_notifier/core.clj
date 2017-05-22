@@ -14,7 +14,8 @@
             [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts?]]
             [kite-notifier.html :as html]
             [clj-time.format :as f]
-            [taoensso.timbre :as log])
+            [taoensso.timbre :as log]
+            [kite-notifier.date-time :as dt])
   (:gen-class))
 
 (defn read-config [environment-key path]
@@ -30,13 +31,6 @@
   {:last-notification (s3/read-setting-from-s3 bucket "last-notification")
    :last-warning (s3/read-setting-from-s3 bucket "last-warning")})
 
-(defn hours-ago [time]
-  (t/in-hours (t/interval time (t/now))))
-
-(defn quiet-time? []
-  (let [current-hour (t/hour (t/to-time-zone (t/now) (DateTimeZone/forID "Europe/Helsinki")))]
-    (and (> 7 current-hour) (< 22 current-hour))))
-
 (defn run-notifier []
   (let [bucket (read-config "bucket" "../.kite-notifier/bucket")
         html-bucket (read-config "htmlbucket" "../.kite-notifier/htmlbucket")
@@ -50,8 +44,8 @@
         twitter-user-access-token-secret (read-config "twitteruseraccesstokensecret" "../.kite-notifier/twitter-user-access-token-secret")
         {:keys [wind-speed wind-gust wind-direction] :as weather-data} (fmi/get-weather-data fmi-api-key fmi-station)
         {:keys [last-notification last-warning]} (read-settings bucket)
-        send-notification? (and (not (quiet-time?)) (< 6 (hours-ago last-notification)))
-        send-warning? (and (not (quiet-time?)) (< 6 (hours-ago last-warning)))]
+        send-notification? (and (not (dt/quiet-time?)) (< 6 (dt/hours-ago last-notification)))
+        send-warning? (and (not (dt/quiet-time?)) (< 6 (dt/hours-ago last-warning)))]
 
     (log/info (str "Last notification sent " last-notification))
     (log/info (str "Last warning sent " last-warning))

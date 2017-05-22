@@ -3,12 +3,13 @@
             [clojure.zip :refer [xml-zip]]
             [clojure.xml :refer [parse]]
             [org.httpkit.client :as http]
-            [kite-notifier.dates :as dates]
+            [kite-notifier.date-time :as dt]
             [taoensso.timbre :as log])
   (:import (java.io ByteArrayInputStream)
            (org.xml.sax SAXParseException)))
 
 (defn read-xml [xml]
+  (println "---> "xml)
   (let [in (ByteArrayInputStream. (.getBytes xml "UTF-8"))]
     (try (xml-zip (parse in))
          (catch SAXParseException e
@@ -30,7 +31,7 @@
                                    station-id
                                    "&parameters=windspeedms,winddirection,windGust,temperature")))
         observations (reverse (sort-by :time (z/xml-> (read-xml xml) :wfs:member handle-observation)))
-        weather-data {:time (dates/parse (:time (latest-observation "windspeedms" observations)))
+        weather-data {:time (dt/parse (:time (latest-observation "windspeedms" observations)))
                       :wind-speed (Double/parseDouble (:value (latest-observation "windspeedms" observations)))
                       :wind-gust (Double/parseDouble (:value (latest-observation "windGust" observations)))
                       :wind-direction (Double/parseDouble (:value (latest-observation "winddirection" observations)))

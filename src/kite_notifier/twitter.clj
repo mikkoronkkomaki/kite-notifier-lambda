@@ -1,6 +1,6 @@
 (ns kite-notifier.twitter
   (:require [kite-notifier.weather-data :refer [conditions-good? strong-wind? strong-gusts? wind-direction-explanation]]
-            [kite-notifier.dates :as dates])
+            [kite-notifier.date-time :as dt])
   (:use [twitter.oauth]
         [twitter.callbacks]
         [twitter.callbacks.handlers]
@@ -21,7 +21,7 @@
                     (strong-gusts? wind-speed wind-gust) (format "Varoitus: Kovat puuskat(%s)!" station)
                     (conditions-good? wind-speed wind-gust wind-direction) (format "Keli päällä (%s)!" station))
         wind-direction (wind-direction-explanation wind-direction)
-        time (dates/to-finnish-time time)
+        time (dt/to-finnish-time time)
         status (format "%s %s/%s m/s, %s, %s°C (%s)" title wind-speed wind-gust wind-direction temperature time)]
     status))
 

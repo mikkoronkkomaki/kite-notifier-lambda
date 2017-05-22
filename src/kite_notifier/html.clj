@@ -2,7 +2,7 @@
   (:require [hiccup.core :refer [html]]
             [kite-notifier.weather-data :as wd]
             [kite-notifier.s3 :as s3]
-            [kite-notifier.dates :as dates]))
+            [kite-notifier.date-time :as dt]))
 
 (def css-style
   "#wrapper {

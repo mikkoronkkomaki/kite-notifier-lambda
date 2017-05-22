@@ -7,6 +7,7 @@
   :test-paths ["test"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [http-kit "2.2.0"]
+                 [http-kit.fake "0.2.1"]
                  [uswitch/lambada "0.1.2"]
                  [org.clojure/data.zip "0.1.1"]
                  [amazonica "0.3.48" :exclusions [com.amazonaws/aws-java-sdk com.amazonaws/amazon-kinesis-client]]
