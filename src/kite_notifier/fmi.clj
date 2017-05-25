@@ -9,7 +9,6 @@
            (org.xml.sax SAXParseException)))
 
 (defn read-xml [xml]
-  (println "---> "xml)
   (let [in (ByteArrayInputStream. (.getBytes xml "UTF-8"))]
     (try (xml-zip (parse in))
          (catch SAXParseException e
